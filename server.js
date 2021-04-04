@@ -66,7 +66,7 @@ app.post(
         }
 
         const newUser = new models.User({
-            username: req.body.username,
+            _id: req.body.username,
             password: req.body.password
         })
         newUser.save((err) => {
