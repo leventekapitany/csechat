@@ -1,10 +1,43 @@
 const mongoose = require('mongoose')
+const autoIncrement = require('mongoose-auto-increment');
+var uniqueValidator = require('mongoose-unique-validator');
+const Schema = mongoose.Schema
 
-const userSchema = new mongoose.Schema({
-    _id : String,
+autoIncrement.initialize(mongoose.connection);
+
+const userSchema = Schema({
+    _id : Number,
+    username: {
+        type: String,
+        unique: true
+    },
     password: String
 })
+userSchema.plugin(uniqueValidator);
+userSchema.plugin(autoIncrement.plugin, "User")
+const User = mongoose.model('user', userSchema)
 
-const User = mongoose.model('User', userSchema)
+const privateRoomSchema = Schema({
+    members: [{
+        type: String,
+        ref: 'Usesfdsr'
+    }]
+})
+const PrivateRoom = mongoose.model('private_room', privateRoomSchema)
 
-module.exports = { User: User }
+const privateMessageSchema = Schema({
+    message: {
+        text: String
+    },
+    privateRoom: {
+        type: Schema.Types.ObjectId,
+        ref: PrivateRoom
+    }
+})
+const PrivateMessage = mongoose.model('private_message', privateMessageSchema)
+
+module.exports = {
+    User: User,
+    PrivateRoom: PrivateRoom,
+    PrivateMessage: PrivateMessage 
+ }
