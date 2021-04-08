@@ -15,5 +15,8 @@ const log = (message) => {
 
 module.exports = {
     log: log,
-    adminSocket: adminSocket
+    adminSocket: adminSocket,
+    setAdminSocket: (socket) => {
+        this.adminSocket = socket
+    }
 }

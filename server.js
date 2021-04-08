@@ -8,12 +8,13 @@ const server = http.Server(app)
 const io = require('socket.io')(server)
 
 const api = require('./api')
-const logger = require('./logger')
+const Logger = require('./logger2')
 
 const port = 5000
 const dbConnection = "mongodb+srv://dbUser:Anusz6969@cluster0.nlq82.mongodb.net/chat?retryWrites=true&w=majority"
 
-
+//LOGGER
+const logger = new Logger()
 
 //SOCKET
 //admin namespace
@@ -26,23 +27,20 @@ let adminSocket
 admin.on("connection", _adminSocket => {
     adminSocket = _adminSocket
     logger.adminSocket = adminSocket
-    log("admin socket connected")
+    api.setAdminSocket(adminSocket)
+
+    logger.log("admin socket connected")
 })
 
 //basic listener
 io.on("connection", clientSocket => {
     const socket = clientSocket
-    log("socket connected")
+    logger.log("socket connected")
 
     socket.onAny((eventName, ...args) => {
-        log("event fired: " + eventName)
+        logger.log("event fired: " + eventName)
     })
 })
-
-
-//LOGGER
-const log = logger.log
-
 
 //serve static folders
 app.use(express.static('public'))
@@ -83,3 +81,8 @@ db.once('open', () => {
 
 
 server.listen(port, () => console.log("listening on port: " + port))
+
+module.exports = {
+    server: server,
+    io: io
+}
