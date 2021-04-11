@@ -1,9 +1,4 @@
 const chalk = require('chalk')
-const Server = require('./server')
-
-Server.io.of("/admin").on("connection", _adminSocket => {
-    console.log("logger2.js admin socket")
-})
 
 class Logger{
     constructor(adminSocket = null){
