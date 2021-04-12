@@ -1,14 +1,41 @@
-let socket = null
+let io = null
 
-const connect = (server) => {
-    const io = require('socket.io')(server)
+const init = () => {
+    console.log("init socketio object")
+    //admin namespace
+    const admin = io.of("/admin")
+    module.exports.adminNamespace = admin
 
-    io.on("connection", _socket => {
-        socket = _socket
+    //admin listener
+    admin.on("connection", _adminSocket => {
+        const log = require('./logger3')
+        log("admin socket connected")
+    })
+
+    //basic listener
+    io.on("connection", clientSocket => {
+        const log = require('./logger3')
+        const socket = clientSocket
+        log("socket connected")
+
+        socket.onAny((eventName, ...args) => {
+            log("event fired: " + eventName)
+        })
     })
 }
 
+const connect = (server = null) => {
+    //ha már létre lett hozva a socketio object
+    if (io) return io
+
+    //ha most lesz létrehozva először (server.js file)
+    io = require('socket.io')(server)
+    init()
+    
+    return io
+}
+
 module.exports = {
-    socket: socket,
-    connect: connect
+    connect: connect,
+    adminNamespace: null,
 }

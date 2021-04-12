@@ -5,42 +5,14 @@ const chalk = require('chalk')
 const path = require('path')
 const mongoose = require('mongoose')
 const server = http.Server(app)
-const io = require('socket.io')(server)
-
+const io = require('./socket').connect(server)
 const api = require('./api')
-const Logger = require('./logger2')
 
 const port = 5000
 const dbConnection = "mongodb+srv://dbUser:Anusz6969@cluster0.nlq82.mongodb.net/chat?retryWrites=true&w=majority"
 
 //LOGGER
-const logger = new Logger()
-
-//SOCKET
-//admin namespace
-const admin = io.of("/admin")
-
-//admin page socket
-let adminSocket
-
-//admin listener
-admin.on("connection", _adminSocket => {
-    adminSocket = _adminSocket
-    logger.adminSocket = adminSocket
-    api.setAdminSocket(adminSocket)
-
-    logger.log("admin socket connected")
-})
-
-//basic listener
-io.on("connection", clientSocket => {
-    const socket = clientSocket
-    logger.log("socket connected")
-
-    socket.onAny((eventName, ...args) => {
-        logger.log("event fired: " + eventName)
-    })
-})
+/* const logger = new Logger() */
 
 //serve static folders
 app.use(express.static('public'))
@@ -81,8 +53,3 @@ db.once('open', () => {
 
 
 server.listen(port, () => console.log("listening on port: " + port))
-
-module.exports = {
-    server: server,
-    io: io
-}

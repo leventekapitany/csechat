@@ -1,10 +1,12 @@
-/* const chalk = require('chalk')
-const Socket = require('./socket')
+const chalk = require('chalk')
+const admin = require('./socket').adminNamespace
 
-const socket = So
+const log = (message) => {
+    console.log(chalk.bgGreen(message)) //console
 
-const log = (message) =>{
-
+    admin.emit("log", message)
 }
 
-module.exports = Logger */
+module.exports = log
+
+

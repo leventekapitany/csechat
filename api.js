@@ -2,11 +2,13 @@ const express = require('express')
 const router = express.Router()
 const {body, validationResult} = require('express-validator')
 const models = require('./models')
-const Logger = require('./logger2')
+const log = require('./logger3')
+
+/* const Logger = require('./logger2')
 const { adminSocket } = require('./logger')
 
 //LOGGER
-const logger = new Logger()
+const logger = new Logger() */
 
 router.post("/signup",
     body('username').isAlphanumeric(),
@@ -25,11 +27,11 @@ router.post("/signup",
         newUser.save((err) => {
             if(err)
             {
-                logger.log(err)
+                log(err)
                 res.send(err)
             }else
             {
-                logger.log("user " + req.body.username + " created")
+                log("user " + req.body.username + " created")
                 res.json("success")
             }
         })
@@ -55,11 +57,11 @@ router.post("/create_private_room",
         room.save((err) => {
             if(err)
             {
-                logger.log(err)
+                log(err)
                 res.json("error")
             }else
             {
-                logger.log("private room created for ID:" + req.body.user1_id + " and ID:" + req.body.user2_id)
+                log("private room created for ID:" + req.body.user1_id + " and ID:" + req.body.user2_id)
                 res.json("success")
             }
         })
