@@ -14,15 +14,18 @@ const userSchema = Schema({
     password: String
 })
 userSchema.plugin(uniqueValidator);
-userSchema.plugin(autoIncrement.plugin, "User")
+userSchema.plugin(autoIncrement.plugin, "user")
 const User = mongoose.model('user', userSchema)
 
 const privateRoomSchema = Schema({
+    _id: Number,
     members: [{
         type: String,
         ref: 'Usesfdsr'
     }]
 })
+privateRoomSchema.plugin(uniqueValidator);
+privateRoomSchema.plugin(autoIncrement.plugin, "private_room")
 const PrivateRoom = mongoose.model('private_room', privateRoomSchema)
 
 const privateMessageSchema = Schema({
