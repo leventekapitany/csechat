@@ -32,9 +32,11 @@ const privateMessageSchema = Schema({
     message: {
         text: String
     },
+    sender: {
+        type: Number
+    },
     privateRoom: {
-        type: Schema.Types.ObjectId,
-        ref: PrivateRoom
+        type: Number
     }
 })
 const PrivateMessage = mongoose.model('private_message', privateMessageSchema)

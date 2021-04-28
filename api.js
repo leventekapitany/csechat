@@ -3,6 +3,7 @@ const router = express.Router()
 const {body, validationResult} = require('express-validator')
 const models = require('./models')
 const log = require('./logger3')
+const { PrivateMessage } = require('./models')
 
 /* const Logger = require('./logger2')
 const { adminSocket } = require('./logger')
@@ -62,6 +63,37 @@ router.post("/create_private_room",
             }else
             {
                 log("private room created for ID:" + req.body.user1_id + " and ID:" + req.body.user2_id)
+                res.json("success")
+            }
+        })
+    }
+)
+
+router.post("/private_message",
+    body('room').isNumeric(),
+    body('sender').isNumeric(),
+    (req, res) => {
+        const errors = validationResult(req)
+        if(!errors.isEmpty()) {
+            return res.json({ errors: errors.array() })
+        }
+
+        const message = new models.PrivateMessage({
+            room: req.body.room,
+            sender: req.body.sender,
+            message: {
+                text: req.body.text
+            }
+        })
+
+        message.save((err) => {
+            if(err)
+            {
+                log(err)
+                res.json("error")
+            }else
+            {
+                log("message sent in room:" + req.body.room + " by ID:" + req.body.sender)
                 res.json("success")
             }
         })
