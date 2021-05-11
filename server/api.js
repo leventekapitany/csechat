@@ -1,55 +1,10 @@
 const express = require('express')
 const router = express.Router()
 const {body, validationResult} = require('express-validator')
-const passport = require('passport')
-const LocalStrategy = require('passport-local').Strategy
-
-
 
 const models = require('./models')
 const log = require('./logger3')
-const { PrivateMessage } = require('./models')
 
-
-//PASSPORT JS
-passport.use(new LocalStrategy(
-    (username, password, done) => {
-        models.User.findOne({
-            username: username
-        }, (err, user) => {
-            console.log("login request: username: " + username + " password: " + password)
-            if(err)
-            {
-                console.log("login error")
-                return done(err)
-            }
-            if(!user)
-            {
-                console.log("incorrect username")
-                return done(null, false, {message: 'Incorrect username'})
-            }
-            console.log("real password: " + user.password)
-            if(!(user.password === password))
-            {
-                console.log("incorrect password")
-                return done(null, false, {message: 'Incorrect password'})
-            }
-            console.log("login succes " + user.username)
-            return done(null, user)
-        })
-    }
-))
-
-passport.serializeUser((user, done) => {
-    done(null, user._id)
-})
-
-passport.deserializeUser((id, done) => {
-    models.User.findById(id, (err, user) => {
-        if(err) { return done(err) }
-        done(null, user)
-    })
-})
 
 router.post("/signup",
     body('username').isAlphanumeric(),
@@ -149,15 +104,17 @@ router.post("add_friend",
     }
 )
 
-router.post("/login",
-    passport.authenticate(
-        'local',
-        {
-            successRedirect: '/',
-            failureRedirect: '/login',
-            failureFlash: true
-        }
-    )
+router.post('/login',
+    (req, res) => {
+        models.User.findOne({username: req.body.username}, (err, user) => {
+            if(err) res.send(err)
+            else if(!user) res.send('invalid username')
+            else {
+                req.session.user = user._id
+                res.send("user id: " + req.session.user)
+            }
+        })
+    }
 )
 
 const validate = (req) => {
@@ -175,7 +132,6 @@ const validate = (req) => {
         response: response
     }
 }
-
 
 module.exports = {
     router: router,
