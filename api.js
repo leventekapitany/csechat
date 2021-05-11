@@ -1,15 +1,55 @@
 const express = require('express')
 const router = express.Router()
 const {body, validationResult} = require('express-validator')
+const passport = require('passport')
+const LocalStrategy = require('passport-local').Strategy
+
+
+
 const models = require('./models')
 const log = require('./logger3')
 const { PrivateMessage } = require('./models')
 
-/* const Logger = require('./logger2')
-const { adminSocket } = require('./logger')
 
-//LOGGER
-const logger = new Logger() */
+//PASSPORT JS
+passport.use(new LocalStrategy(
+    (username, password, done) => {
+        models.User.findOne({
+            username: username
+        }, (err, user) => {
+            console.log("login request: username: " + username + " password: " + password)
+            if(err)
+            {
+                console.log("login error")
+                return done(err)
+            }
+            if(!user)
+            {
+                console.log("incorrect username")
+                return done(null, false, {message: 'Incorrect username'})
+            }
+            console.log("real password: " + user.password)
+            if(!(user.password === password))
+            {
+                console.log("incorrect password")
+                return done(null, false, {message: 'Incorrect password'})
+            }
+            console.log("login succes " + user.username)
+            return done(null, user)
+        })
+    }
+))
+
+passport.serializeUser((user, done) => {
+    done(null, user._id)
+})
+
+passport.deserializeUser((id, done) => {
+    models.User.findById(id, (err, user) => {
+        if(err) { return done(err) }
+        done(null, user)
+    })
+})
 
 router.post("/signup",
     body('username').isAlphanumeric(),
@@ -99,6 +139,43 @@ router.post("/private_message",
         })
     }
 )
+
+router.post("add_friend",
+    body('username').isAlphanumeric(),
+    body('username').isLength({min: 3}),
+    (req, res) => {
+        const validation = validate(res)
+        if (validation.failed) return validation.response 
+    }
+)
+
+router.post("/login",
+    passport.authenticate(
+        'local',
+        {
+            successRedirect: '/',
+            failureRedirect: '/login',
+            failureFlash: true
+        }
+    )
+)
+
+const validate = (req) => {
+    let failed = null
+    let response = null
+
+    const errors = validationResult(req)
+    if(!errors.isEmpty()) {
+        failed = true
+        response = res.json({ errors: errors.array() })
+    }
+
+    return {
+        failed: failed,
+        response: response
+    }
+}
+
 
 module.exports = {
     router: router,
