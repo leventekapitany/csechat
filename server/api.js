@@ -107,15 +107,50 @@ router.post("add_friend",
 router.post('/login',
     (req, res) => {
         models.User.findOne({username: req.body.username}, (err, user) => {
-            if(err) res.send(err)
-            else if(!user) res.send('invalid username')
-            else {
-                req.session.user = user._id
-                res.send("user id: " + req.session.user)
+
+            let response = {
+                status: '',
+                description: ''
             }
+
+            if(err) {
+                response.status = 'error',
+                response.description = err
+            }
+            else if(!user || !(user.password === req.body.password)){
+                response.status = 'invalid'
+            }
+            else{
+                //successful auth
+                req.session.user_id = user._id
+
+                response.status = 'ok'
+                response.description = {
+                    username: user.username,
+                    _id: user._id
+                }
+            }
+
+            res.send(response)
         })
     }
 )
+
+router.get("/", (req, res) => {
+
+    if(!(req.session.asd))
+    {
+        req.session.asd = 0
+    }
+    req.session.asd++
+
+    //res.sendFile(__dirname + '/public/index.html');
+    //res.send("userid: " + req.session.user_id)
+    res.send("asd: " + req.session.asd)
+    
+    console.log(req.session)
+})
+
 
 const validate = (req) => {
     let failed = null

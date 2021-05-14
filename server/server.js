@@ -5,8 +5,8 @@ const chalk = require('chalk')
 const path = require('path')
 const mongoose = require('mongoose')
 const session = require('express-session')
-
-
+const cors = require('cors')
+const models = require('./models')
 
 const server = http.Server(app)
 const io = require('./socket').connect(server)
@@ -23,22 +23,27 @@ app.use(express.static('public'))
 app.use(express.urlencoded({extended: true}))
 //json
 app.use(express.json())
-
-
+//cors
+app.use(cors({
+    credentials: true,
+    origin: ['http://localhost:8081'],
+}))
 //sessions
 app.use(session({
     secret: "asd",
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: {
+        maxAge: 70000
+    }
 }))
 
 
 //server api, http requests
 app.use('/api', api.router)
 
-app.get("/", (req, res) => {
-    //res.sendFile(__dirname + '/public/index.html');
-    res.send("user logged in: " + req.user)
+app.get('/', (req, res) => {
+    res.send(JSON.stringify(req.session))
 })
 
 //DATABASE
