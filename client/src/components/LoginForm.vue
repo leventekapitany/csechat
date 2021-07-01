@@ -83,6 +83,10 @@ export default {
     input {
        @apply dark:text-black border-2 border-gray-400 rounded-xl; 
     }
+    input:focus-visible {
+        outline: none;
+        box-shadow: 1px 1px 1px 1px grey;
+    }
 /*     ._visible{
         opacity: 1 !important;
     }
